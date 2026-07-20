@@ -1,0 +1,628 @@
+HUONG DAN SETUP VA SU DUNG AUTO TOOLS
+====================================
+
+Muc dich
+--------
+
+Bo Auto Tools duoc thiet ke de co the copy nguyen folder "Auto Tools" sang
+may tinh khac va chay ngay bang Launcher.ps1.
+
+Tat ca duong dan trong chuong trinh duoc lay tu folder goc "Auto Tools",
+khong phu thuoc vao ten user Windows hay duong dan C:\Users\... cu the.
+
+
+1. Yeu cau tren may tinh can chay
+---------------------------------
+
+- Windows.
+- PowerShell co san tren Windows.
+- Microsoft Excel, vi nhieu script dung Excel COM de doc/ghi file Excel.
+- Microsoft Outlook, chi can cho chuong trinh Download Supplier Commitment.
+- File macro/template/input phai duoc dat dung thu muc nhu huong dan ben duoi.
+
+
+2. Cach copy va setup tren may khac
+-----------------------------------
+
+Buoc 1: Copy nguyen folder:
+
+  Auto Tools
+
+sang may tinh khac. Co the dat o Desktop, D:\, Documents, hoac bat ky thu muc
+nao nguoi dung co quyen doc/ghi.
+
+Vi du:
+
+  D:\Auto Tools
+
+hoac:
+
+  C:\Users\<User>\Desktop\Auto Tools
+
+Buoc 2: Kiem tra cau truc folder chinh:
+
+  Auto Tools\
+  |-- Launcher.ps1
+  |-- launcher-config.json
+  |-- Config\
+  |-- Input\
+  |-- Output\
+  |-- Logs\
+  |-- Temp\
+  `-- Scripts\
+
+Buoc 3: Tao shortcut chay Launcher.
+
+Target cua shortcut:
+
+  powershell.exe -NoProfile -ExecutionPolicy Bypass -File "<DUONG_DAN_AUTO_TOOLS>\Launcher.ps1"
+
+Vi du neu folder nam o D:\Auto Tools:
+
+  powershell.exe -NoProfile -ExecutionPolicy Bypass -File "D:\Auto Tools\Launcher.ps1"
+
+Buoc 4: Double-click shortcut de mo man hinh Launcher.
+
+
+3. File cau hinh duong dan
+--------------------------
+
+File cau hinh nam tai:
+
+  Config\autotools-paths.json
+
+File thong tin supplier nam tai:
+
+  Config\suppliers.csv
+
+Mac dinh:
+
+  JobShortRoot             = Input\Job Short
+  JobShortZipFolder        = Input\Data Job Short - Not Delete
+  ASCPRoot                 = Input\ASCP
+  SupplierCommitmentRoot   = Input\Supplier Commitment
+  SupplierCommitmentOutput = Output\Supplier Commitment
+  SupplierMaster           = Config\suppliers.csv
+  ProcessCDsTemplate       = Scripts\Process-CDs\Template_PreCD.xml
+  ProcessCDsInput          = Input\Process-CDs\cds_input.txt
+  ProcessCDsMoq            = Input\Process-CDs\MOQ_Yao I.txt
+  ProcessCDsOutput         = Output\Process-CDs
+  ProcessPOTemplate        = Scripts\Process-PO\PO_Template_5.xlsx
+  ProcessPOInput           = Input\Process-PO\input.txt
+  ProcessPOOutput          = Output\Process-PO
+
+Neu muon doi folder du lieu ma khong sua code, chi can sua file
+Config\autotools-paths.json.
+
+Nen dung duong dan tuong doi theo folder Auto Tools.
+
+Vi du:
+
+  "JobShortRoot": "Input\\Job Short"
+
+Van co the dung duong dan tuyet doi neu bat buoc:
+
+  "JobShortRoot": "D:\\Working Files\\Job Short"
+
+
+3.1. File supplier master
+-------------------------
+
+File supplier master:
+
+  Config\suppliers.csv
+
+Neu Config\suppliers.csv chua ton tai, Launcher se hien cua so setup supplier
+khi khoi dong lan dau.
+Nguoi dung paste danh sach theo mau:
+
+  Vendor Name<Tab>Vendor Code
+
+Vi du:
+
+  YAO-I VIETNAM COMPANY LIMITED    9781
+  XIAN HUA VIET NAM INDUSTRIAL COMPANY LIMITED    10603
+
+Launcher se tu tao cac cot con lai voi gia tri mac dinh:
+
+  ProcessCDs = TRUE
+  RoundMOQ   = FALSE
+  MOQFile    = rong
+  Combine    = FALSE
+  ItemPrefix = rong
+
+Sau khi tao xong, neu supplier nao can MOQ/combine, mo Config\suppliers.csv
+va sua lai cac cot tuong ung.
+
+Cac cot trong file:
+
+  Keyword     : tu khoa de nhan dien supplier trong input.
+  VendorCode  : ma vendor dung de dien vao template CDs.
+  VendorName  : ten day du cua vendor.
+  ProcessCDs  : TRUE/FALSE, co dung supplier nay cho Process-CDs hay khong.
+  RoundMOQ    : TRUE/FALSE, supplier nay co can lam tron MOQ hay khong.
+  MOQFile     : file MOQ rieng cua supplier, co the de trong.
+  Combine     : TRUE/FALSE, supplier nay chi can thong bao combine, khong tao file.
+  ItemPrefix  : neu Combine = TRUE, khai bao dau item can combine, vd 3;6.
+
+Co the khai nhieu file MOQ trong cot MOQFile bang dau cham phay:
+
+  Input\Process-CDs\MOQ_A.txt;Input\Process-CDs\MOQ_B.txt
+
+Neu nguoi dung khong quan ly supplier nao, co the doi ProcessCDs thanh FALSE
+hoac xoa dong supplier do.
+
+
+4. Launcher.ps1
+---------------
+
+Chuc nang:
+
+- Doc danh sach chuong trinh tu launcher-config.json.
+- Hien thi giao dien nut bam de chay tung script.
+- Tu dong tao cac folder he thong neu chua co:
+  Config, Input, Output, Logs, Temp, Scripts.
+- Truyen bien moi truong AUTOTOOLS_ROOT cho script con.
+- Ghi log vao:
+
+  Logs\Launcher.log
+
+Cach dung:
+
+- Chay Launcher.ps1 bang shortcut.
+- Bam ten chuong trinh can chay.
+- Neu them script moi, co the bam "Them chuong trinh" trong Launcher.
+
+File danh sach chuong trinh:
+
+  launcher-config.json
+
+
+5. AutoImport.ps1
+-----------------
+
+Duong dan script:
+
+  Scripts\AutoImport.ps1
+
+Input can chuan bi:
+
+  Input\Job Short
+  Input\Data Job Short - Not Delete
+
+Ben trong Input\Job Short can co cac folder ngay dang:
+
+  dd.MM
+
+Vi du:
+
+  Input\Job Short\21.06
+  Input\Job Short\22.06
+
+Trong folder ngay nguon can co file working:
+
+  20240410 Jun JS.xlsb
+
+Ben trong Input\Data Job Short - Not Delete can co file zip import moi nhat:
+
+  *.zip
+
+Logic hoat dong:
+
+1. Tim folder ngay moi nhat trong Input\Job Short, bo qua folder ngay hom nay.
+2. Tao folder ngay hom nay theo dinh dang dd.MM.
+3. Copy toan bo noi dung tu folder ngay nguon sang folder ngay hom nay.
+4. Tim file zip moi nhat trong Input\Data Job Short - Not Delete.
+5. Giai nen zip vao folder Import cua folder ngay hom nay.
+6. Mo file 20240410 Jun JS.xlsb bang Excel.
+7. Chay lan luot cac macro:
+
+   - UnfilterAllSheets
+   - ConvertWorkbooks
+   - Import_Text_File
+   - ClearDataInOverview
+   - Export_Daily
+
+8. Luu va dong file Excel.
+9. Hoi nguoi dung co muon chay CheckCD_Shortage.ps1 tiep hay khong.
+
+Output:
+
+- Folder ngay moi trong:
+
+  Input\Job Short\<dd.MM>
+
+- File working da duoc update trong folder ngay moi.
+
+Luu y:
+
+- May chay can cai Microsoft Excel.
+- Macro trong file xlsb phai ton tai dung ten.
+- Neu file working doi ten, can sua bien WorkingFile trong AutoImport.ps1.
+
+
+6. CheckCD_Shortage.ps1
+-----------------------
+
+Duong dan script:
+
+  Scripts\CheckCD_Shortage.ps1
+
+Input can chuan bi:
+
+  Input\Job Short
+  Input\ASCP
+
+Trong Input\Job Short:
+
+- Script se tim file:
+
+  20240410 Jun JS.xlsb
+
+- Uu tien file nam truc tiep trong Input\Job Short.
+- Neu khong co, script tim trong folder ngay moi nhat dang dd.MM.
+
+Trong Input\ASCP:
+
+- Script can file:
+
+  OPVN_ASCP.xlsb
+
+- Uu tien file nam truc tiep trong Input\ASCP.
+- Neu khong co, script tim trong folder moi nhat theo dang:
+
+  Input\ASCP\<folder moi nhat>\Import\OPVN_ASCP.xlsb
+
+Logic hoat dong:
+
+1. Mo file Job Short working o che do read-only.
+2. Mo file ASCP de nap bang Part_No va Buyer.
+3. Quet cac sheet supplier trong file Job Short.
+4. Bo qua cac sheet khong phai supplier theo danh sach SkipSheets.
+5. Bo qua item co BU_Category = CPT.
+6. Neu item co BU_Category = Shared, script double-check trong ASCP:
+   chi xu ly neu Buyer dung la nguoi phu trach duoc cau hinh.
+7. Tinh demand theo lead time cua tung vendor.
+8. Kiem tra:
+
+   Thieu CDS  = demand - (CD Open Qty + Pre CD)
+   Thieu Hang = demand - Vendor PO QTY
+
+9. In ket qua ra console.
+
+Output:
+
+- Ket qua hien thi tren man hinh console.
+- Script nay khong ghi de file working.
+
+Luu y:
+
+- May chay can cai Microsoft Excel.
+- Bang lead time vendor nam trong script CheckCD_Shortage.ps1.
+- Neu them vendor moi, can bo sung vao bang LeadTime.
+
+
+7. Download-SupplierCommitment.ps1
+----------------------------------
+
+Duong dan script:
+
+  Scripts\Download-SupplierCommitment.ps1
+
+Input can chuan bi:
+
+- Outlook da dang nhap mailbox dung.
+- Trong Outlook can co cac folder:
+
+  Inbox\Supplier Commitment\TC5 - Cu Chi\SF (Forecast chuan)
+  Inbox\Supplier Commitment\TN5 - Dau Giay\SF (Forecast chuan)
+
+Trong code hien tai, ten folder co dau tieng Viet:
+
+  TC5 - Cu Chi
+  TN5 - Dau Giay
+  SF (Forecast chuan)
+
+Neu ten folder Outlook tren may khac khac nhau, can sua bien $Folders trong:
+
+  Scripts\Download-SupplierCommitment.ps1
+
+Output:
+
+  Input\Supplier Commitment\TC5
+  Input\Supplier Commitment\TN5
+
+Logic hoat dong:
+
+1. Ket noi Outlook.
+2. Tinh ngay Thu 2 cua tuan hien tai.
+3. Duyet email tu Thu 2 den ngay hien tai.
+4. Trong tung email, doc Category co dang:
+
+   Vendor_<ma vendor> - <ten supplier>
+
+5. Tim attachment .xls hoac .xlsx.
+6. Doi ten file theo format:
+
+   <ma vendor> - <ten supplier> - <BU>.xls
+
+7. Luu vao folder TC5 hoac TN5 tuong ung.
+8. Neu trung ten file, file moi se ghi de file cu.
+
+Luu y:
+
+- May chay can cai Microsoft Outlook.
+- Outlook nen duoc mo san truoc khi chay.
+- Email phai co category Vendor dung format.
+
+
+8. Check-Shortage-Supplier Commitment.ps1
+-----------------------------------------
+
+Duong dan script:
+
+  Scripts\Check-Shortage-Supplier Commitment.ps1
+
+Input can chuan bi:
+
+  Input\Supplier Commitment\TC5
+  Input\Supplier Commitment\TN5
+
+Trong 2 folder tren can co cac file supplier commitment:
+
+  *.xls
+  *.xlsx
+
+Co the lay tu chuong trinh Download Supplier Commitment.
+
+Output:
+
+  Output\Supplier Commitment\Shortage_Timeline_<yyyyMMdd_HHmmss>.xlsx
+
+Logic hoat dong:
+
+1. Quet toan bo file Excel trong folder TC5 va TN5.
+2. Doc sheet dau tien cua moi file.
+3. Tim cac dong theo block 5 dong:
+
+   Firm
+   Forecast
+   Plan Order
+   Supply Reply
+   Gap
+
+4. Tinh Gap tich luy theo cong thuc:
+
+   Gap[t] = Gap[t-1] + SupplyReply[t-1] - PlanOrder[t]
+
+5. Kiem tra so tuan lich duoc cau hinh, mac dinh 12 tuan.
+6. Neu Gap am, dua item vao danh sach thieu hang.
+7. Tao file Excel timeline:
+
+   - Moi dong la 1 Part Num.
+   - Moi cot la 1 tuan.
+   - O nao thieu hang se hien gap am va to mau do.
+
+Luu y:
+
+- May chay can cai Microsoft Excel.
+- Cau truc file supplier commitment phai dung format dang dung hien tai.
+- Neu muon thay so tuan check, sua bien WeeksToCheck trong script.
+
+
+9. Process-CDs.ps1
+------------------
+
+Duong dan script:
+
+  Scripts\Process-CDs\Process-CDs.ps1
+
+Input can chuan bi:
+
+  Input\Process-CDs\cds_input.txt
+
+File template:
+
+  Scripts\Process-CDs\Template_PreCD.xml
+
+File MOQ mac dinh neu co:
+
+  Input\Process-CDs\MOQ_Yao I.txt
+
+Thong tin supplier:
+
+  Config\suppliers.csv
+
+MOQ:
+
+- Neu khong co dieu kien MOQ, khi script hoi thi chon N hoac Enter de bo qua.
+- Neu muon chon MOQ luc chay, chon Y roi chon mot hoac nhieu file MOQ.
+- Neu muon setup san theo supplier, khai file MOQ vao cot MOQFile trong
+  Config\suppliers.csv.
+- Neu muon truyen truc tiep khi chay command line:
+
+  powershell -ExecutionPolicy Bypass -File .\Process-CDs.ps1 -MoqPath "file1.txt","file2.txt"
+
+Output:
+
+  Output\Process-CDs\<BU>\<Vendor name>\<Vendor name>.xml
+
+Logic hoat dong:
+
+1. Doc file cds_input.txt.
+2. Lay cac dong co ThieuCDS > 0.
+3. Nhom du lieu theo BU va Supplier.
+4. Nhan dien vendor dua tren Config\suppliers.csv.
+5. Neu vendor co RoundMOQ = TRUE va co file MOQ, lam tron so luong len theo MOQ.
+6. Neu khong co file MOQ hoac nguoi dung bo qua MOQ, script giu nguyen so luong.
+7. Neu supplier co Combine = TRUE, script khong tao file rieng ma in danh sach
+   item can nhan tin nho combine.
+8. Dien du lieu vao template SpreadsheetML Template_PreCD.xml.
+9. Xuat file .xml mo duoc bang Excel.
+
+Luu y:
+
+- Input cds_input.txt thuong la ket qua copy tu bang Check CD & Shortage.
+- Neu supplier moi chua duoc nhan dien, can bo sung vao Config\suppliers.csv.
+- Output .xml co the mo bang Excel.
+
+
+10. Process-PO.ps1
+------------------
+
+Duong dan script:
+
+  Scripts\Process-PO\Process-PO.ps1
+
+Input can chuan bi:
+
+  Input\Process-PO\input.txt
+
+File template:
+
+  Scripts\Process-PO\PO_Template_5.xlsx
+
+MOQ neu can release PO theo full carton/MOQ:
+
+- Khi chay Process-PO, script se hoi co muon lam tron PO theo MOQ khong.
+- Neu khong can, chon N hoac Enter de bo qua.
+- Neu can, chon Y, sau do chon supplier trong danh sach input.
+- Co the chon nhieu supplier bang dau phay, hoac go ALL.
+- Sau do chon mot hoac nhieu file MOQ.
+- File MOQ co format 2 cot:
+
+  Item    Full carton qty
+
+Output:
+
+  Output\Process-PO\<BU>\<vendor name>\<vendor_site>.txt
+
+Logic hoat dong:
+
+1. Doc file input.txt dang tab-delimited copy tu Excel.
+2. Bo qua dong header neu bat dau bang BU.
+3. Chuan hoa ngay ve format:
+
+   yyyy/MM/dd
+
+4. Nhom du lieu theo BU va VENDOR_SITE.
+5. Tra ten vendor tu vendor id trong VENDOR_SITE.
+6. Neu nguoi dung bat MOQ, lam tron NEW ORDER QUANTITY len boi so MOQ cho
+   supplier da chon.
+7. Mo file PO_Template_5.xlsx bang Excel.
+8. Dan du lieu vao sheet:
+
+   Upload PO_NoSER
+
+9. Luu tung nhom thanh file Text (Tab delimited) .txt.
+
+Luu y:
+
+- May chay can cai Microsoft Excel.
+- Input can co du cac cot theo format template:
+
+  BU
+  VENDOR_CODE
+  VENDOR SITE CODE
+  ITEM_NO
+  ITEM_revision
+  NEW DOCK DATE
+  NEW ORDER QUANTITY
+  currency
+  EXCESS
+  ship_to
+
+- Neu vendor moi chua co ten, script van tao output theo vendor_site va hien
+  canh bao tren console.
+
+
+11. Thu muc Logs va Temp
+------------------------
+
+Logs:
+
+  Logs\Launcher.log
+
+Dung de xem loi khi Launcher khong mo duoc hoac khong chay duoc script.
+
+Temp:
+
+  Temp
+
+Dung cho file tam khi giai nen hoac xu ly trung gian.
+
+
+12. Cac loi thuong gap
+----------------------
+
+Loi: Khong the doc launcher-config.json
+
+- Kiem tra file launcher-config.json co bi sua sai JSON khong.
+- Co the mo file bang Notepad va dam bao dang la mang JSON:
+
+  [
+    {
+      "Name": "Auto Import",
+      "Path": "Scripts\\AutoImport.ps1"
+    }
+  ]
+
+Loi: Khong tim thay file PowerShell
+
+- Kiem tra duong dan trong launcher-config.json.
+- Nen dung duong dan tuong doi theo Auto Tools, vi du:
+
+  Scripts\\AutoImport.ps1
+
+Loi: Khong tim thay folder Input
+
+- Chay Launcher.ps1 lai, folder he thong se duoc tao tu dong.
+- Hoac tao thu cong cac folder Input, Output, Logs, Temp.
+
+Loi: Khong khoi dong duoc Excel
+
+- May chay chua cai Microsoft Excel.
+- Can cai Excel desktop, khong chi Excel web.
+
+Loi: Khong ket noi duoc Outlook
+
+- Mo Outlook truoc khi chay.
+- Kiem tra mailbox va ten folder Outlook.
+
+Loi: Khong tim thay file template/input
+
+- Kiem tra cac file:
+
+  Scripts\Process-CDs\Template_PreCD.xml
+  Scripts\Process-PO\PO_Template_5.xlsx
+  Input\Process-CDs\cds_input.txt
+  Input\Process-PO\input.txt
+
+
+13. Cach share cho nguoi khac
+-----------------------------
+
+Khi share cho may khac, nen gui nguyen folder:
+
+  Auto Tools
+
+Khong nen chi gui rieng Scripts.
+
+Nguoi nhan can:
+
+1. Giai nen/copy folder Auto Tools vao may.
+2. Dat cac file input vao dung folder Input.
+3. Tao shortcut tro vao Launcher.ps1.
+4. Chay Launcher va bam chuong trinh can dung.
+
+
+14. Ghi chu khi bao tri
+-----------------------
+
+- Neu doi cau truc folder, uu tien sua Config\autotools-paths.json.
+- Neu them chuong trinh moi, them vao launcher-config.json hoac dung nut
+  "Them chuong trinh" trong Launcher.
+- Neu them vendor moi cho CDs/PO/Shortage, can sua bang vendor trong script
+  tuong ung. Rieng Process-CDs dung Config\suppliers.csv.
+- Nen giu template trong Scripts\Process-CDs va Scripts\Process-PO de khi copy
+  folder sang may khac template di kem chuong trinh.

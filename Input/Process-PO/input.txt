@@ -1,0 +1,1 @@
+BU	vendor_code	vendor_site	item_no	rev	po_date	po_qty	currency	Check PO Dual Source

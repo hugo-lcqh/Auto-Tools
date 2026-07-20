@@ -1,0 +1,25 @@
+# Local development metadata
+.agents/
+.codex/
+
+# Generated build artifacts
+dist/
+Temp/
+*.log
+
+# Runtime output
+Logs/
+Output/
+
+# Runtime input: retain only the starter files required by the installer
+Input/*
+!Input/Process-CDs/
+Input/Process-CDs/*
+!Input/Process-CDs/cds_input.txt
+!Input/Process-PO/
+Input/Process-PO/*
+!Input/Process-PO/input.txt
+
+# Windows-generated files
+Thumbs.db
+Desktop.ini

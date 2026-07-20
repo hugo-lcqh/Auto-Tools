@@ -1,0 +1,16 @@
+{
+  "JobShortRoot": "Input\\Job Short",
+  "JobShortZipFolder": "Input\\Data Job Short - Not Delete",
+  "ASCPRoot": "Input\\ASCP",
+  "SupplierCommitmentRoot": "Output\\Supplier Commitment",
+  "SupplierCommitmentOutput": "Output\\Supplier Commitment",
+  "SupplierMaster": "Config\\suppliers.csv",
+  "ProcessCDsTemplate": "Scripts\\Process-CDs\\Template_PreCD.xml",
+  "ProcessCDsInput": "Input\\Process-CDs\\cds_input.txt",
+  "ProcessCDsMoq": "Scripts\\Process-CDs\\MOQ_Yao I.txt",
+  "ProcessCDsOutput": "Output\\Process-CDs",
+  "ProcessPOTemplate": "Scripts\\Process-PO\\PO_Template_5.xlsx",
+  "ProcessPOInput": "Input\\Process-PO\\input.txt",
+  "ProcessPOMoq": "Input\\Process-PO\\MOQ.txt",
+  "ProcessPOOutput": "Output\\Process-PO"
+}

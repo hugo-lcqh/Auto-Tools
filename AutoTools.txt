@@ -10,7 +10,7 @@ Bạn tạo shortcut chạy Launcher.ps1 như này:
   -- Chọn New → Shortcut.
   -- Ở ô Type the location of the item, dán dòng này:
 
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "C:\Users\ChiQuocHung.Le\Work\Auto Tools\Launcher.ps1"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "C:\Path\To\Auto Tools\Launcher.ps1"
 
   -- Bấm Next.
   -- Đặt tên ví dụ: Auto Tools Launcher

@@ -1,0 +1,2 @@
+BU  Supplier      Item      LT Demand CD+Pre      PO ThieuCDS ThieuHang ThieuPO_CDS
+--  --------      ----      -- ------ ------      -- -------- --------- -----------
