@@ -1,0 +1,42 @@
+[
+    {
+        "Name":  "Auto - Tao file .exe cho chuong trinh",
+        "Path":  "Scripts\\Build-AutoToolsExe.ps1"
+    },
+    {
+        "Name":  "Auto - Tao file Job Shortage moi",
+        "Path":  "Scripts\\AutoImport.ps1"
+    },
+    {
+        "Name":  "Auto - Kiem tra CDs bang Job Shortage",
+        "Path":  "Scripts\\CheckCD_Shortage.ps1"
+    },
+    {
+        "Name":  "Auto - Kiem tra thieu hang trong Supply Commitment",
+        "Path":  "Scripts\\Check-Shortage-Supplier Commitment.ps1"
+    },
+    {
+        "Name":  "Auto - Check MR Pull in",
+        "Path":  "Scripts\\Check-MR-PullIn.ps1"
+    },
+    {
+        "Name":  "Auto - Download Supplier Commitment",
+        "Path":  "Scripts\\Download-SupplierCommitment.ps1"
+    },
+    {
+        "Name":  "Auto - Download Vendor Stock",
+        "Path":  "Scripts\\Download-VendorStock.ps1"
+    },
+    {
+        "Name":  "Auto - Tao file template CDs import",
+        "Path":  "Scripts\\Process-CDs\\Process-CDs.ps1"
+    },
+    {
+        "Name":  "Auto - Pre-CD Outlook - Draft Mail",
+        "Path":  "Scripts\\PreCD-Outlook.ps1"
+    },
+    {
+        "Name":  "Auto - Tao file template POs import",
+        "Path":  "Scripts\\Process-PO\\Process-PO.ps1"
+    }
+]

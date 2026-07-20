@@ -1,0 +1,74 @@
+Auto Tools portable layout
+==========================
+
+Copy the whole "Auto Tools" folder to another Windows computer, then run:
+
+  Launcher.ps1
+
+Bạn tạo shortcut chạy Launcher.ps1 như này:
+  -- Chuột phải trên Desktop hoặc trong folder bạn muốn đặt shortcut.
+  -- Chọn New → Shortcut.
+  -- Ở ô Type the location of the item, dán dòng này:
+
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "C:\Users\ChiQuocHung.Le\Work\Auto Tools\Launcher.ps1"
+
+  -- Bấm Next.
+  -- Đặt tên ví dụ: Auto Tools Launcher
+  -- Bấm Finish.
+  -- Sau đó double-click shortcut để mở Launcher.
+
+Nếu muốn đẹp hơn, bạn có thể đổi icon:
+  -- Chuột phải shortcut → Properties.
+  -- Tab Shortcut → Change Icon.
+  -- Chọn icon có sẵn hoặc browse tới file .ico.
+  -- OK → Apply.
+
+Folder layout:
+
+Auto Tools\
+|-- Launcher.ps1
+|-- launcher-config.json
+|-- Config\
+|   |-- autotools-paths.json
+|   `-- suppliers.csv
+|-- Scripts\
+|   |-- AutoTools.Common.ps1
+|   |-- AutoImport.ps1
+|   |-- CheckCD_Shortage.ps1
+|   |-- Check-Shortage-Supplier Commitment.ps1
+|   |-- Download-SupplierCommitment.ps1
+|   |-- Process-CDs\
+|   |   `-- Process-CDs.ps1
+|   `-- Process-PO\
+|       `-- Process-PO.ps1
+|-- Input\
+|   |-- Job Short\
+|   |-- Data Job Short - Not Delete\
+|   |-- ASCP\
+|   |-- Supplier Commitment\
+|   |   |-- TC5\
+|   |   `-- TN5\
+|   |-- Process-CDs\
+|   `-- Process-PO\
+|-- Output\
+|   |-- Supplier Commitment\
+|   |-- Process-CDs\
+|   `-- Process-PO\
+|-- Logs\
+`-- Temp\
+
+Default data locations:
+
+- Job Short working folders: Input\Job Short
+- Job Short zip files: Input\Data Job Short - Not Delete
+- ASCP files: Input\ASCP
+- Supplier Commitment downloads: Input\Supplier Commitment\TC5 and Input\Supplier Commitment\TN5
+- Supplier Commitment shortage timeline: Output\Supplier Commitment
+- Process-CDs input: Input\Process-CDs\cds_input.txt
+- Process-CDs output: Output\Process-CDs
+- Process-PO input: Input\Process-PO\input.txt
+- Process-PO output: Output\Process-PO
+
+To change these paths without editing code, update:
+
+  Config\autotools-paths.json
