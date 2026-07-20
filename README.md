@@ -36,3 +36,22 @@ Tải file `AutoTools-Setup-1.1.0.exe` từ phần **Releases**, sau đó chạy
 git clone https://github.com/moi0329/Auto-Tools.git
 Set-Location Auto-Tools
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\Launcher.ps1"
+Cấu hình
+Cấu hình đường dẫn dữ liệu tại:
+Config/autotools-paths.json
+Thông tin supplier được quản lý tại:
+Config/suppliers.csv
+Không commit dữ liệu công việc thực tế trong các thư mục Input, Output, Logs, Temp và dist.
+Kiểm tra installer
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\Tests\Test-Installer.ps1"
+Cấu trúc chính
+Auto-Tools/
+├── Config/
+├── Input/
+├── Installer/
+├── Scripts/
+├── Tests/
+├── Launcher.ps1
+└── launcher-config.json
+Tài liệu
+Xem hướng dẫn đầy đủ tại [HUONG_DAN_SETUP_AUTO_TOOLS.txt](./HUONG_DAN_SETUP_AUTO_TOOLS.txt)
