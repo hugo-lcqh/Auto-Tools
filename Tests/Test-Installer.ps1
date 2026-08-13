@@ -56,14 +56,14 @@ $manifest = Get-Content -LiteralPath $installerScript -Raw
 $builder = Get-Content -LiteralPath $buildScript -Raw
 $launcher = Get-Content -LiteralPath $launcherScript -Raw
 
-Assert-Contains $manifest '(?m)^PrivilegesRequired=lowest$' `
+Assert-Contains $manifest '(?m)^PrivilegesRequired=lowest\r?$' `
     'Installer must run without administrator elevation.'
-Assert-Contains $manifest '(?m)^DefaultDirName=\{localappdata\}\\Programs\\Auto Tools$' `
+Assert-Contains $manifest '(?m)^DefaultDirName=\{localappdata\}\\Programs\\Auto Tools\r?$' `
     'Installer must use a per-user writable directory.'
-Assert-Contains $manifest '(?m)^\[Files\]$' 'Installer is missing [Files].'
-Assert-Contains $manifest '(?m)^\[Dirs\]$' 'Installer is missing [Dirs].'
-Assert-Contains $manifest '(?m)^\[Icons\]$' 'Installer is missing [Icons].'
-Assert-Contains $manifest '(?m)^\[Run\]$' 'Installer is missing [Run].'
+Assert-Contains $manifest '(?m)^\[Files\]\r?$' 'Installer is missing [Files].'
+Assert-Contains $manifest '(?m)^\[Dirs\]\r?$' 'Installer is missing [Dirs].'
+Assert-Contains $manifest '(?m)^\[Icons\]\r?$' 'Installer is missing [Icons].'
+Assert-Contains $manifest '(?m)^\[Run\]\r?$' 'Installer is missing [Run].'
 Assert-Contains $manifest 'launcher-config\.json.*onlyifdoesntexist.*uninsneveruninstall' `
     'User launcher configuration must survive upgrades and uninstall.'
 Assert-Contains $manifest 'Config\\suppliers\.csv.*onlyifdoesntexist.*uninsneveruninstall' `
@@ -77,11 +77,11 @@ Assert-Contains $builder 'Installer\\AutoTools\.iss' `
 
 $launcherVersion = [regex]::Match(
     $launcher,
-    '(?m)^\$AppVersion\s*=\s*''([^'']+)''$'
+    '(?m)^\$AppVersion\s*=\s*''([^'']+)''\r?$'
 )
 $manifestVersion = [regex]::Match(
     $manifest,
-    '(?m)^\s*#define MyAppVersion "([^"]+)"$'
+    '(?m)^\s*#define MyAppVersion "([^"]+)"\r?$'
 )
 $builderVersion = [regex]::Match(
     $builder,
@@ -91,8 +91,8 @@ $builderVersion = [regex]::Match(
 Assert-True $launcherVersion.Success 'Launcher is missing $AppVersion.'
 Assert-True $manifestVersion.Success 'Manifest is missing its default version.'
 Assert-True $builderVersion.Success 'Build script is missing its default version.'
-Assert-True ($launcherVersion.Groups[1].Value -eq '1.1.0') `
-    'Launcher version must be 1.1.0.'
+Assert-True ($launcherVersion.Groups[1].Value -eq '1.2.0') `
+    'Launcher version must be 1.2.0.'
 Assert-True `
     ($launcherVersion.Groups[1].Value -eq $manifestVersion.Groups[1].Value) `
     'Launcher and Inno Setup versions do not match.'

@@ -9,6 +9,7 @@
    3. Tim file Import *.zip moi nhat, giai nen va de
       vao folder Import cua folder moi
    4. Mo file working .xlsb, chay 5 macro theo thu tu, luu lai
+   5. Chuyen folder nguon vao folder Older sau khi update thanh cong
 ====================================================================
 #>
 
@@ -68,6 +69,26 @@ function Get-LatestImportZip {
     return Get-ChildItem -LiteralPath $DestinationFolder -Filter $NamePattern -File -ErrorAction SilentlyContinue |
         Sort-Object LastWriteTime -Descending |
         Select-Object -First 1
+}
+
+function Move-JobShortSourceToArchive {
+    param(
+        [Parameter(Mandatory)]
+        [System.IO.DirectoryInfo]$SourceFolder,
+
+        [Parameter(Mandatory)]
+        [string]$RootFolder
+    )
+
+    $olderFolder = Join-Path $RootFolder 'Older'
+    $archivedPath = Join-Path $olderFolder $SourceFolder.Name
+    if (Test-Path -LiteralPath $archivedPath) {
+        throw "Folder $($SourceFolder.Name) da ton tai trong Older: $archivedPath"
+    }
+
+    New-Item -ItemType Directory -Path $olderFolder -Force | Out-Null
+    Move-Item -LiteralPath $SourceFolder.FullName -Destination $olderFolder
+    return $archivedPath
 }
 
 try {
@@ -219,6 +240,11 @@ public class Win {
     [System.Runtime.InteropServices.Marshal]::ReleaseComObject($wb)    | Out-Null
     [System.Runtime.InteropServices.Marshal]::ReleaseComObject($excel) | Out-Null
     [GC]::Collect(); [GC]::WaitForPendingFinalizers()
+
+    # Chi archive sau khi workbook da luu thanh cong de co the retry neu buoc tren loi.
+    Write-Step "Buoc 5: Chuyen folder nguon vao Older"
+    $archivedPath = Move-JobShortSourceToArchive -SourceFolder $sourceFolder -RootFolder $RootFolder
+    Write-OK "Da chuyen $($sourceFolder.Name) vao $archivedPath"
 
     Write-Host "`n========================================" -ForegroundColor Green
     Write-Host " HOAN TAT! Folder moi: $TodayName" -ForegroundColor Green

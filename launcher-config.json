@@ -1,9 +1,5 @@
 [
     {
-        "Name":  "Auto - Tao file .exe cho chuong trinh",
-        "Path":  "Scripts\\Build-AutoToolsExe.ps1"
-    },
-    {
         "Name":  "Auto - Tao file Job Shortage moi",
         "Path":  "Scripts\\AutoImport.ps1"
     },

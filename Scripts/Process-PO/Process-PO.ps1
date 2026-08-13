@@ -2,10 +2,10 @@
 ==============================================================================
  Process-PO.ps1
  ------------------------------------------------------------------------------
- Đọc dữ liệu PO (copy từ Excel, tab-delimited) -> nhóm theo vendor_site ->
+ Đọc dữ liệu PO (copy từ Excel, tab-delimited) -> nhóm theo lựa chọn ->
  dán vào sheet "Upload PO_NoSER" của file PO Template -> lưu thành file
- Text (Tab delimited) (.txt), sắp xếp theo cấu trúc folder:
-       <Output>\<dd.MM-dd.MM.yyyy>\<BU>\<vendor_site>\<vendor_site>.txt
+ Text (Tab delimited) (.txt). Người dùng có thể chia theo supplier + site
+ hoặc chỉ chia theo site TC5/TN5.
 ==============================================================================
  CÁCH DÙNG:
    1. Đặt 3 thứ trong cùng 1 thư mục (bất kỳ đâu cũng được):
@@ -28,6 +28,8 @@ param(
     [string]$InputPath    = "",
     [string]$OutputRoot   = "",
     [string[]]$MoqPath    = @(),
+    [ValidateSet("", "Supplier", "Site")]
+    [string]$GroupingMode = "",
     [string]$SheetName    = "Upload PO_NoSER"
 )
 
@@ -239,6 +241,59 @@ function RoundUp-ToMoq([int]$qty, [int]$moq) {
     return ([math]::Ceiling($qty / [double]$moq)) * $moq
 }
 
+function Select-POGroupingMode([string]$RequestedMode) {
+    if ($RequestedMode -eq 'Supplier') { return 'Supplier' }
+    if ($RequestedMode -eq 'Site') { return 'Site' }
+
+    while ($true) {
+        Write-Host "Chọn cách chia file PO:" -ForegroundColor Cyan
+        Write-Host "  1. Theo từng supplier, trong site TC5/TN5 (hiện tại)"
+        Write-Host "  2. Chỉ theo site TC5/TN5, không chia supplier"
+        $choice = Read-Host "Nhập lựa chọn 1 hoặc 2 (Enter = 1)"
+
+        if ([string]::IsNullOrWhiteSpace($choice) -or $choice.Trim() -eq '1') {
+            return 'Supplier'
+        }
+        if ($choice.Trim() -eq '2') {
+            return 'Site'
+        }
+
+        Write-Host "Lựa chọn không hợp lệ. Vui lòng nhập 1 hoặc 2." -ForegroundColor Yellow
+        Write-Host ""
+    }
+}
+
+function Group-PORecords {
+    param(
+        [object[]]$Records,
+        [ValidateSet('Supplier', 'Site')]
+        [string]$GroupingMode
+    )
+
+    if ($GroupingMode -eq 'Site') {
+        return @($Records | Group-Object -Property BU)
+    }
+
+    return @($Records | Group-Object -Property BU, VENDOR_SITE)
+}
+
+function Get-POOutputRelativePath {
+    param(
+        [ValidateSet('Supplier', 'Site')]
+        [string]$GroupingMode,
+        [string]$BU,
+        [string]$VendorSite,
+        [string]$VendorFolderName
+    )
+
+    if ($GroupingMode -eq 'Site') {
+        return (Join-Path -Path $BU -ChildPath ("{0}.txt" -f $BU))
+    }
+
+    $supplierFolder = Join-Path -Path $BU -ChildPath $VendorFolderName
+    return (Join-Path -Path $supplierFolder -ChildPath ("{0}.txt" -f $VendorSite))
+}
+
 $TemplatePath = Resolve-FullPath $TemplatePath
 $InputPath    = Resolve-FullPath $InputPath
 $OutputRoot   = Resolve-FullPath $OutputRoot
@@ -293,9 +348,17 @@ for ($i = $startIdx; $i -lt $rawLines.Count; $i++) {
 if ($records.Count -eq 0) { throw "Không phân tích được dòng dữ liệu nào." }
 Write-Host ("Đã đọc {0} dòng dữ liệu." -f $records.Count)
 
-# Nhóm theo BU + vendor_site
-$groups = $records | Group-Object -Property BU, VENDOR_SITE
-Write-Host ("Số nhóm (BU/vendor_site): {0}" -f $groups.Count)
+# Người dùng chọn giữ cách chia hiện tại hoặc gộp tất cả supplier theo site.
+$GroupingMode = Select-POGroupingMode -RequestedMode $GroupingMode
+$groups = @(Group-PORecords -Records $records -GroupingMode $GroupingMode)
+if ($GroupingMode -eq 'Supplier') {
+    Write-Host ("Đã chọn: chia theo supplier và site TC5/TN5.") -ForegroundColor Green
+    Write-Host ("Số nhóm (BU/vendor_site): {0}" -f $groups.Count)
+}
+else {
+    Write-Host ("Đã chọn: chỉ chia theo site TC5/TN5.") -ForegroundColor Green
+    Write-Host ("Số nhóm (BU): {0}" -f $groups.Count)
+}
 Write-Host ""
 
 # ============================================================================
@@ -308,13 +371,13 @@ $applyMoq = Read-Host "Co muon lam tron PO theo MOQ cho supplier nao khong? (Y/N
 if ($applyMoq -eq 'Y' -or $applyMoq -eq 'y') {
     $vendorChoices = @()
     $index = 1
-    foreach ($g in $groups) {
-        $site = $g.Group[0].VENDOR_SITE
+    foreach ($record in $records) {
+        $site = $record.VENDOR_SITE
         $vendorId = Get-VendorId $site
         if ([string]::IsNullOrWhiteSpace($vendorId)) { continue }
 
-        $vendorName = Get-VendorFolderName $site
         if ($vendorChoices | Where-Object { $_.VendorId -eq $vendorId }) { continue }
+        $vendorName = Get-VendorFolderName $site
 
         $vendorChoices += [PSCustomObject]@{
             Index    = $index
@@ -413,17 +476,28 @@ try {
 
     foreach ($g in $groups) {
         $bu   = $g.Group[0].BU
-        $site = $g.Group[0].VENDOR_SITE
-        $vendorId = Get-VendorId $site
-        $rows = $g.Group
+        $site = if ($GroupingMode -eq 'Supplier') { $g.Group[0].VENDOR_SITE } else { '' }
+        $rows = @($g.Group)
 
-        Write-Host ("-> {0} / {1}  ({2} dòng)" -f $bu, $site, $rows.Count)
+        if ($GroupingMode -eq 'Supplier') {
+            Write-Host ("-> {0} / {1}  ({2} dòng)" -f $bu, $site, $rows.Count)
+            $vendorName = Get-VendorFolderName $site
+        }
+        else {
+            Write-Host ("-> {0}  ({1} dòng, tất cả supplier)" -f $bu, $rows.Count)
+            $vendorName = ''
+        }
 
-        # --- BƯỚC 2: tạo folder  Output\<tuần>\BU\<tên vendor> ---
-        $vendorName = Get-VendorFolderName $site
-        $siteFolder = Join-Path (Join-Path $OutputRoot $bu) $vendorName
-        if (-not (Test-Path $siteFolder)) {
-            New-Item -ItemType Directory -Path $siteFolder -Force | Out-Null
+        # --- BƯỚC 2: xác định folder/file theo cách chia đã chọn ---
+        $relativeOutputPath = Get-POOutputRelativePath `
+            -GroupingMode $GroupingMode `
+            -BU $bu `
+            -VendorSite $site `
+            -VendorFolderName $vendorName
+        $txtPath = Join-Path -Path $OutputRoot -ChildPath $relativeOutputPath
+        $outputFolder = Split-Path -Path $txtPath -Parent
+        if (-not (Test-Path $outputFolder)) {
+            New-Item -ItemType Directory -Path $outputFolder -Force | Out-Null
         }
 
         # --- Mở 1 bản sao mới của template cho mỗi nhóm ---
@@ -445,6 +519,7 @@ try {
         for ($r = 0; $r -lt $n; $r++) {
             $rec = $rows[$r]
             $qtyOut = $rec.QTY
+            $vendorId = Get-VendorId $rec.VENDOR_SITE
 
             if (
                 $vendorId -and
@@ -463,7 +538,7 @@ try {
                     }
                 }
                 else {
-                    $moqMissing += ("{0}/{1}/{2}" -f $bu, $site, $rec.ITEM_NO)
+                    $moqMissing += ("{0}/{1}/{2}" -f $bu, $rec.VENDOR_SITE, $rec.ITEM_NO)
                 }
             }
 
@@ -487,7 +562,6 @@ try {
         $target.Value2 = $arr
 
         # --- BƯỚC 3: lưu thành Text (Tab delimited) .txt ---
-        $txtPath = Join-Path $siteFolder ("{0}.txt" -f $site)
         # SaveAs txt chỉ lưu sheet đang active -> kích hoạt sheet đích trước
         $ws.Activate() | Out-Null
         $wb.SaveAs($txtPath, $xlTextWindows)

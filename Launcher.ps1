@@ -19,7 +19,7 @@ param()
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
-$AppVersion = '1.1.0'
+$AppVersion = '1.2.0'
 
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
@@ -57,20 +57,31 @@ foreach ($directoryPath in $Paths.Values) {
 }
 
 # ============================================================
-# BANG MAU GIAO DIEN
+# BANG MAU GIAO DIEN - INDUSTRIAL OPERATIONS
 # ============================================================
 
-$ColorBg       = [System.Drawing.Color]::FromArgb(22, 27, 31)
-$ColorPanel    = [System.Drawing.Color]::FromArgb(31, 38, 44)
-$ColorBtn      = [System.Drawing.Color]::FromArgb(35, 111, 119)
-$ColorBtnHover = [System.Drawing.Color]::FromArgb(43, 135, 145)
-$ColorBtnDel   = [System.Drawing.Color]::FromArgb(151, 70, 76)
-$ColorAccent   = [System.Drawing.Color]::FromArgb(239, 181, 76)
-$ColorText     = [System.Drawing.Color]::FromArgb(242, 245, 247)
-$ColorSubText  = [System.Drawing.Color]::FromArgb(163, 174, 184)
-$ColorCard     = [System.Drawing.Color]::FromArgb(42, 50, 58)
-$ColorGreen    = [System.Drawing.Color]::FromArgb(69, 154, 105)
-$ColorWarning  = [System.Drawing.Color]::FromArgb(226, 136, 66)
+$ColorBg             = [System.Drawing.Color]::FromArgb(248, 250, 252)
+$ColorPanel          = [System.Drawing.Color]::White
+$ColorHeader         = [System.Drawing.Color]::FromArgb(51, 65, 85)
+$ColorHeaderText     = [System.Drawing.Color]::White
+$ColorHeaderSubText  = [System.Drawing.Color]::FromArgb(226, 232, 240)
+$ColorHeaderMuted    = [System.Drawing.Color]::FromArgb(203, 213, 225)
+$ColorBtn            = [System.Drawing.Color]::FromArgb(51, 65, 85)
+$ColorBtnHover       = [System.Drawing.Color]::FromArgb(30, 41, 59)
+$ColorBtnDel         = [System.Drawing.Color]::FromArgb(185, 28, 28)
+$ColorAccent         = [System.Drawing.Color]::FromArgb(245, 158, 11)
+$ColorText           = [System.Drawing.Color]::FromArgb(15, 23, 42)
+$ColorSubText        = [System.Drawing.Color]::FromArgb(71, 85, 105)
+$ColorCard           = [System.Drawing.Color]::White
+$ColorMuted          = [System.Drawing.Color]::FromArgb(241, 245, 249)
+$ColorBorder         = [System.Drawing.Color]::FromArgb(203, 213, 225)
+$ColorGreen          = [System.Drawing.Color]::FromArgb(4, 120, 87)
+$ColorGreenHover     = [System.Drawing.Color]::FromArgb(6, 95, 70)
+$ColorGreenSurface   = [System.Drawing.Color]::FromArgb(236, 253, 245)
+$ColorWarning        = [System.Drawing.Color]::FromArgb(180, 83, 9)
+$ColorWarningSurface = [System.Drawing.Color]::FromArgb(255, 251, 235)
+$ColorDangerSurface  = [System.Drawing.Color]::FromArgb(254, 242, 242)
+$ColorDangerPressed  = [System.Drawing.Color]::FromArgb(254, 226, 226)
 
 # ============================================================
 # CAC HAM HO TRO
@@ -112,16 +123,16 @@ function Get-WorkdayStatus {
 
     if ($now -lt $start) {
         $percent = 100
-        $text = 'Workday 07:30-16:00 | Chua bat dau'
+        $text = 'Shift 07:30-16:00 | Not started'
     }
     elseif ($now -ge $end) {
         $percent = 0
-        $text = 'Workday 07:30-16:00 | Da ket thuc'
+        $text = 'Shift 07:30-16:00 | Complete'
     }
     else {
         $remaining = $end - $now
         $percent = [Math]::Round(($remaining.TotalSeconds / $totalSeconds) * 100)
-        $text = 'Workday 07:30-16:00 | Con lai {0}h {1}m ({2}%)' -f `
+        $text = 'Shift 07:30-16:00 | {0}h {1}m remaining ({2}%)' -f `
             [Math]::Floor($remaining.TotalHours),
             $remaining.Minutes,
             $percent
@@ -609,6 +620,7 @@ function Show-SupplierSetupDialog {
     $setupForm.FormBorderStyle = 'FixedDialog'
     $setupForm.BackColor = $ColorBg
     $setupForm.Font = New-Object System.Drawing.Font('Segoe UI', 9)
+    $setupForm.AutoScaleMode = [System.Windows.Forms.AutoScaleMode]::Dpi
 
     $label = New-Object System.Windows.Forms.Label
     $label.Text = (
@@ -631,21 +643,25 @@ function Show-SupplierSetupDialog {
     $textBox.WordWrap = $false
     $textBox.Font = New-Object System.Drawing.Font('Consolas', 9)
     $textBox.Text = Get-DefaultSupplierInputText
+    $textBox.AccessibleName = 'Supplier names and vendor codes'
     $setupForm.Controls.Add($textBox)
 
     $statusLabel = New-Object System.Windows.Forms.Label
     $statusLabel.Location = New-Object System.Drawing.Point(16, 448)
     $statusLabel.Size = New-Object System.Drawing.Size(710, 22)
-    $statusLabel.ForeColor = [System.Drawing.Color]::FromArgb(240, 200, 110)
+    $statusLabel.ForeColor = $ColorWarning
     $setupForm.Controls.Add($statusLabel)
 
     $btnSave = New-Object System.Windows.Forms.Button
     $btnSave.Text = 'Tao suppliers.csv'
     $btnSave.Location = New-Object System.Drawing.Point(466, 478)
     $btnSave.Size = New-Object System.Drawing.Size(126, 32)
-    $btnSave.BackColor = [System.Drawing.Color]::FromArgb(50, 130, 90)
-    $btnSave.ForeColor = $ColorText
+    $btnSave.BackColor = $ColorGreen
+    $btnSave.ForeColor = $ColorHeaderText
     $btnSave.FlatStyle = 'Flat'
+    $btnSave.FlatAppearance.BorderSize = 0
+    $btnSave.FlatAppearance.MouseOverBackColor = $ColorGreenHover
+    $btnSave.AccessibleName = 'Create suppliers.csv'
     $btnSave.DialogResult = [System.Windows.Forms.DialogResult]::None
     $setupForm.Controls.Add($btnSave)
 
@@ -656,7 +672,12 @@ function Show-SupplierSetupDialog {
     $btnCancel.BackColor = $ColorPanel
     $btnCancel.ForeColor = $ColorText
     $btnCancel.FlatStyle = 'Flat'
+    $btnCancel.FlatAppearance.BorderColor = $ColorBtn
+    $btnCancel.AccessibleName = 'Cancel supplier setup'
     $setupForm.Controls.Add($btnCancel)
+
+    $setupForm.AcceptButton = $btnSave
+    $setupForm.CancelButton = $btnCancel
 
     $btnSave.Add_Click({
         try {
@@ -975,130 +996,426 @@ Write-LauncherLog -Message "Launcher da khoi dong. RootPath: $RootPath"
 
 $form = New-Object System.Windows.Forms.Form
 $form.Text = 'Material Control Auto Tools'
-$form.Size = New-Object System.Drawing.Size(760, 660)
+$form.ClientSize = New-Object System.Drawing.Size(980, 680)
+$form.MinimumSize = New-Object System.Drawing.Size(860, 620)
 $form.StartPosition = 'CenterScreen'
-$form.FormBorderStyle = 'FixedSingle'
-$form.MaximizeBox = $false
+$form.FormBorderStyle = 'Sizable'
+$form.MaximizeBox = $true
 $form.BackColor = $ColorBg
 $form.Font = New-Object System.Drawing.Font('Segoe UI', 9)
+$form.AutoScaleMode = [System.Windows.Forms.AutoScaleMode]::Dpi
 $form.TopMost = $false
+$form.KeyPreview = $true
 
-# Tieu de
-$topBar = New-Object System.Windows.Forms.Panel
-$topBar.Location = New-Object System.Drawing.Point(0, 0)
-$topBar.Size = New-Object System.Drawing.Size(760, 6)
-$topBar.BackColor = $ColorAccent
-$form.Controls.Add($topBar)
+$rootLayout = New-Object System.Windows.Forms.TableLayoutPanel
+$rootLayout.Dock = 'Fill'
+$rootLayout.Margin = New-Object System.Windows.Forms.Padding(0)
+$rootLayout.Padding = New-Object System.Windows.Forms.Padding(0)
+$rootLayout.ColumnCount = 1
+$rootLayout.RowCount = 3
+$rootLayout.ColumnStyles.Add((
+    New-Object System.Windows.Forms.ColumnStyle(
+        [System.Windows.Forms.SizeType]::Percent,
+        100
+    )
+))
+$rootLayout.RowStyles.Add((
+    New-Object System.Windows.Forms.RowStyle(
+        [System.Windows.Forms.SizeType]::Absolute,
+        116
+    )
+))
+$rootLayout.RowStyles.Add((
+    New-Object System.Windows.Forms.RowStyle(
+        [System.Windows.Forms.SizeType]::Percent,
+        100
+    )
+))
+$rootLayout.RowStyles.Add((
+    New-Object System.Windows.Forms.RowStyle(
+        [System.Windows.Forms.SizeType]::Absolute,
+        42
+    )
+))
+$form.Controls.Add($rootLayout)
+
+# Header
+$headerPanel = New-Object System.Windows.Forms.Panel
+$headerPanel.Dock = 'Fill'
+$headerPanel.Margin = New-Object System.Windows.Forms.Padding(0)
+$headerPanel.BackColor = $ColorHeader
+$rootLayout.Controls.Add($headerPanel, 0, 0)
+
+$headerAccent = New-Object System.Windows.Forms.Panel
+$headerAccent.Dock = 'Left'
+$headerAccent.Width = 6
+$headerAccent.BackColor = $ColorAccent
+$headerPanel.Controls.Add($headerAccent)
+
+$headerLayout = New-Object System.Windows.Forms.TableLayoutPanel
+$headerLayout.Dock = 'Fill'
+$headerLayout.Margin = New-Object System.Windows.Forms.Padding(0)
+$headerLayout.Padding = New-Object System.Windows.Forms.Padding(28, 16, 28, 12)
+$headerLayout.ColumnCount = 2
+$headerLayout.RowCount = 1
+$headerLayout.ColumnStyles.Add((
+    New-Object System.Windows.Forms.ColumnStyle(
+        [System.Windows.Forms.SizeType]::Percent,
+        60
+    )
+))
+$headerLayout.ColumnStyles.Add((
+    New-Object System.Windows.Forms.ColumnStyle(
+        [System.Windows.Forms.SizeType]::Percent,
+        40
+    )
+))
+$headerPanel.Controls.Add($headerLayout)
+
+$headerLeft = New-Object System.Windows.Forms.Panel
+$headerLeft.Dock = 'Fill'
+$headerLeft.Margin = New-Object System.Windows.Forms.Padding(0)
+$headerLeft.BackColor = $ColorHeader
+$headerLayout.Controls.Add($headerLeft, 0, 0)
 
 $appLabel = New-Object System.Windows.Forms.Label
-$appLabel.Text = 'MATERIAL CONTROL'
-$appLabel.Location = New-Object System.Drawing.Point(28, 24)
+$appLabel.Text = 'MATERIAL CONTROL  /  OPERATIONS DESKTOP'
+$appLabel.Location = New-Object System.Drawing.Point(0, 0)
 $appLabel.AutoSize = $true
 $appLabel.ForeColor = $ColorAccent
 $appLabel.Font = New-Object System.Drawing.Font(
     'Segoe UI Semibold',
-    9,
+    8.5,
     [System.Drawing.FontStyle]::Bold
 )
-$form.Controls.Add($appLabel)
+$headerLeft.Controls.Add($appLabel)
 
 $header = New-Object System.Windows.Forms.Label
-$header.Text = 'Material Control Auto Tools'
-$header.Location = New-Object System.Drawing.Point(26, 42)
+$header.Text = 'Automation Launcher'
+$header.Location = New-Object System.Drawing.Point(0, 24)
 $header.AutoSize = $true
-$header.ForeColor = $ColorText
+$header.ForeColor = $ColorHeaderText
 $header.Font = New-Object System.Drawing.Font(
     'Segoe UI Semibold',
-    22,
+    21,
     [System.Drawing.FontStyle]::Bold
 )
-$form.Controls.Add($header)
+$headerLeft.Controls.Add($header)
 
 $subHeader = New-Object System.Windows.Forms.Label
-$subHeader.Text = 'Xin chao, {0}. Chon tool can chay ben duoi.' -f (Get-LauncherUserName)
-$subHeader.Location = New-Object System.Drawing.Point(29, 84)
+$subHeader.Text = 'Signed in as {0}  |  Select a validated workflow below.' -f (Get-LauncherUserName)
+$subHeader.Location = New-Object System.Drawing.Point(2, 66)
 $subHeader.AutoSize = $true
-$subHeader.ForeColor = $ColorSubText
-$subHeader.Font = New-Object System.Drawing.Font('Segoe UI', 10.5)
-$form.Controls.Add($subHeader)
+$subHeader.ForeColor = $ColorHeaderSubText
+$subHeader.Font = New-Object System.Drawing.Font('Segoe UI', 9.5)
+$headerLeft.Controls.Add($subHeader)
+
+$headerRight = New-Object System.Windows.Forms.TableLayoutPanel
+$headerRight.Dock = 'Fill'
+$headerRight.Margin = New-Object System.Windows.Forms.Padding(12, 0, 0, 0)
+$headerRight.Padding = New-Object System.Windows.Forms.Padding(0)
+$headerRight.BackColor = $ColorHeader
+$headerRight.ColumnCount = 1
+$headerRight.RowCount = 2
+$headerRight.ColumnStyles.Add((
+    New-Object System.Windows.Forms.ColumnStyle(
+        [System.Windows.Forms.SizeType]::Percent,
+        100
+    )
+))
+$headerRight.RowStyles.Add((
+    New-Object System.Windows.Forms.RowStyle(
+        [System.Windows.Forms.SizeType]::Absolute,
+        34
+    )
+))
+$headerRight.RowStyles.Add((
+    New-Object System.Windows.Forms.RowStyle(
+        [System.Windows.Forms.SizeType]::Percent,
+        100
+    )
+))
+$headerLayout.Controls.Add($headerRight, 1, 0)
 
 $clockLabel = New-Object System.Windows.Forms.Label
 $clockLabel.Text = Get-LauncherDateTimeText
-$clockLabel.Location = New-Object System.Drawing.Point(500, 36)
-$clockLabel.Size = New-Object System.Drawing.Size(218, 26)
+$clockLabel.Dock = 'Fill'
+$clockLabel.Margin = New-Object System.Windows.Forms.Padding(0)
 $clockLabel.TextAlign = 'MiddleRight'
-$clockLabel.ForeColor = $ColorText
+$clockLabel.ForeColor = $ColorHeaderText
 $clockLabel.Font = New-Object System.Drawing.Font(
+    'Segoe UI Semibold',
+    9.5,
+    [System.Drawing.FontStyle]::Bold
+)
+$clockLabel.AccessibleName = 'Current date and time'
+$headerRight.Controls.Add($clockLabel, 0, 0)
+
+$folderLabel = New-Object System.Windows.Forms.Label
+$folderLabel.Text = 'ROOT  {0}' -f $RootPath
+$folderLabel.Dock = 'Fill'
+$folderLabel.Margin = New-Object System.Windows.Forms.Padding(0)
+$folderLabel.TextAlign = 'TopRight'
+$folderLabel.ForeColor = $ColorHeaderMuted
+$folderLabel.Font = New-Object System.Drawing.Font('Consolas', 8.5)
+$folderLabel.AutoEllipsis = $true
+$folderLabel.AccessibleName = 'Auto Tools root folder'
+$headerRight.Controls.Add($folderLabel, 0, 1)
+
+# Main content
+$contentPanel = New-Object System.Windows.Forms.Panel
+$contentPanel.Dock = 'Fill'
+$contentPanel.Margin = New-Object System.Windows.Forms.Padding(0)
+$contentPanel.Padding = New-Object System.Windows.Forms.Padding(26, 18, 26, 14)
+$contentPanel.BackColor = $ColorBg
+$rootLayout.Controls.Add($contentPanel, 0, 1)
+
+$contentLayout = New-Object System.Windows.Forms.TableLayoutPanel
+$contentLayout.Dock = 'Fill'
+$contentLayout.Margin = New-Object System.Windows.Forms.Padding(0)
+$contentLayout.Padding = New-Object System.Windows.Forms.Padding(0)
+$contentLayout.ColumnCount = 1
+$contentLayout.RowCount = 4
+$contentLayout.ColumnStyles.Add((
+    New-Object System.Windows.Forms.ColumnStyle(
+        [System.Windows.Forms.SizeType]::Percent,
+        100
+    )
+))
+$contentLayout.RowStyles.Add((
+    New-Object System.Windows.Forms.RowStyle(
+        [System.Windows.Forms.SizeType]::Absolute,
+        84
+    )
+))
+$contentLayout.RowStyles.Add((
+    New-Object System.Windows.Forms.RowStyle(
+        [System.Windows.Forms.SizeType]::Absolute,
+        42
+    )
+))
+$contentLayout.RowStyles.Add((
+    New-Object System.Windows.Forms.RowStyle(
+        [System.Windows.Forms.SizeType]::Percent,
+        100
+    )
+))
+$contentLayout.RowStyles.Add((
+    New-Object System.Windows.Forms.RowStyle(
+        [System.Windows.Forms.SizeType]::Absolute,
+        58
+    )
+))
+$contentPanel.Controls.Add($contentLayout)
+
+# Shift status card
+$shiftPanel = New-Object System.Windows.Forms.Panel
+$shiftPanel.Dock = 'Fill'
+$shiftPanel.Margin = New-Object System.Windows.Forms.Padding(0, 0, 0, 10)
+$shiftPanel.BackColor = $ColorPanel
+$shiftPanel.BorderStyle = 'FixedSingle'
+$contentLayout.Controls.Add($shiftPanel, 0, 0)
+
+$shiftLayout = New-Object System.Windows.Forms.TableLayoutPanel
+$shiftLayout.Dock = 'Fill'
+$shiftLayout.Margin = New-Object System.Windows.Forms.Padding(0)
+$shiftLayout.Padding = New-Object System.Windows.Forms.Padding(16, 10, 16, 10)
+$shiftLayout.ColumnCount = 2
+$shiftLayout.RowCount = 1
+$shiftLayout.ColumnStyles.Add((
+    New-Object System.Windows.Forms.ColumnStyle(
+        [System.Windows.Forms.SizeType]::Absolute,
+        190
+    )
+))
+$shiftLayout.ColumnStyles.Add((
+    New-Object System.Windows.Forms.ColumnStyle(
+        [System.Windows.Forms.SizeType]::Percent,
+        100
+    )
+))
+$shiftPanel.Controls.Add($shiftLayout)
+
+$shiftIdentity = New-Object System.Windows.Forms.Panel
+$shiftIdentity.Dock = 'Fill'
+$shiftIdentity.Margin = New-Object System.Windows.Forms.Padding(0)
+$shiftIdentity.BackColor = $ColorPanel
+$shiftLayout.Controls.Add($shiftIdentity, 0, 0)
+
+$shiftTitle = New-Object System.Windows.Forms.Label
+$shiftTitle.Text = 'SHIFT CONTROL'
+$shiftTitle.Location = New-Object System.Drawing.Point(0, 2)
+$shiftTitle.AutoSize = $true
+$shiftTitle.ForeColor = $ColorText
+$shiftTitle.Font = New-Object System.Drawing.Font(
     'Segoe UI Semibold',
     10,
     [System.Drawing.FontStyle]::Bold
 )
-$form.Controls.Add($clockLabel)
+$shiftIdentity.Controls.Add($shiftTitle)
 
-$folderLabel = New-Object System.Windows.Forms.Label
-$folderLabel.Text = $RootPath
-$folderLabel.Location = New-Object System.Drawing.Point(408, 64)
-$folderLabel.Size = New-Object System.Drawing.Size(310, 38)
-$folderLabel.TextAlign = 'TopRight'
-$folderLabel.ForeColor = $ColorSubText
-$folderLabel.Font = New-Object System.Drawing.Font('Segoe UI', 8.5)
-$form.Controls.Add($folderLabel)
+$shiftHours = New-Object System.Windows.Forms.Label
+$shiftHours.Text = 'Standard window  07:30 - 16:00'
+$shiftHours.Location = New-Object System.Drawing.Point(0, 28)
+$shiftHours.AutoSize = $true
+$shiftHours.ForeColor = $ColorSubText
+$shiftHours.Font = New-Object System.Drawing.Font('Segoe UI', 8.5)
+$shiftIdentity.Controls.Add($shiftHours)
+
+$shiftDetails = New-Object System.Windows.Forms.TableLayoutPanel
+$shiftDetails.Dock = 'Fill'
+$shiftDetails.Margin = New-Object System.Windows.Forms.Padding(8, 0, 0, 0)
+$shiftDetails.Padding = New-Object System.Windows.Forms.Padding(0)
+$shiftDetails.ColumnCount = 2
+$shiftDetails.RowCount = 2
+$shiftDetails.ColumnStyles.Add((
+    New-Object System.Windows.Forms.ColumnStyle(
+        [System.Windows.Forms.SizeType]::Percent,
+        100
+    )
+))
+$shiftDetails.ColumnStyles.Add((
+    New-Object System.Windows.Forms.ColumnStyle(
+        [System.Windows.Forms.SizeType]::Absolute,
+        112
+    )
+))
+$shiftDetails.RowStyles.Add((
+    New-Object System.Windows.Forms.RowStyle(
+        [System.Windows.Forms.SizeType]::Absolute,
+        30
+    )
+))
+$shiftDetails.RowStyles.Add((
+    New-Object System.Windows.Forms.RowStyle(
+        [System.Windows.Forms.SizeType]::Absolute,
+        12
+    )
+))
+$shiftLayout.Controls.Add($shiftDetails, 1, 0)
 
 $workdayLabel = New-Object System.Windows.Forms.Label
-$workdayLabel.Location = New-Object System.Drawing.Point(29, 110)
-$workdayLabel.Size = New-Object System.Drawing.Size(689, 18)
+$workdayLabel.Dock = 'Fill'
+$workdayLabel.Margin = New-Object System.Windows.Forms.Padding(0)
 $workdayLabel.TextAlign = 'MiddleLeft'
 $workdayLabel.ForeColor = $ColorSubText
-$workdayLabel.Font = New-Object System.Drawing.Font('Segoe UI', 8.7)
-$form.Controls.Add($workdayLabel)
+$workdayLabel.Font = New-Object System.Drawing.Font('Segoe UI', 8.8)
+$workdayLabel.AccessibleName = 'Current shift status'
+$shiftDetails.Controls.Add($workdayLabel, 0, 0)
+
+$shiftPercentLabel = New-Object System.Windows.Forms.Label
+$shiftPercentLabel.Dock = 'Fill'
+$shiftPercentLabel.Margin = New-Object System.Windows.Forms.Padding(0)
+$shiftPercentLabel.TextAlign = 'MiddleRight'
+$shiftPercentLabel.ForeColor = $ColorGreen
+$shiftPercentLabel.Font = New-Object System.Drawing.Font(
+    'Segoe UI Semibold',
+    8.5,
+    [System.Drawing.FontStyle]::Bold
+)
+$shiftPercentLabel.AccessibleName = 'Shift time remaining percentage'
+$shiftDetails.Controls.Add($shiftPercentLabel, 1, 0)
 
 $workdayTrack = New-Object System.Windows.Forms.Panel
-$workdayTrack.Location = New-Object System.Drawing.Point(28, 134)
-$workdayTrack.Size = New-Object System.Drawing.Size(690, 8)
-$workdayTrack.BackColor = $ColorCard
-$form.Controls.Add($workdayTrack)
+$workdayTrack.Dock = 'Fill'
+$workdayTrack.Margin = New-Object System.Windows.Forms.Padding(0, 2, 0, 0)
+$workdayTrack.BackColor = $ColorMuted
+$shiftDetails.Controls.Add($workdayTrack, 0, 1)
+$shiftDetails.SetColumnSpan($workdayTrack, 2)
 
 $workdayFill = New-Object System.Windows.Forms.Panel
-$workdayFill.Location = New-Object System.Drawing.Point(0, 0)
-$workdayFill.Size = New-Object System.Drawing.Size(690, 8)
+$workdayFill.Dock = 'Left'
+$workdayFill.Width = 0
 $workdayFill.BackColor = $ColorGreen
 $workdayTrack.Controls.Add($workdayFill)
 
-# Duong ke ngang
-$line = New-Object System.Windows.Forms.Label
-$line.Location = New-Object System.Drawing.Point(28, 152)
-$line.Size = New-Object System.Drawing.Size(690, 2)
-$line.BackColor = $ColorAccent
-$form.Controls.Add($line)
+# Tool list heading
+$listHeader = New-Object System.Windows.Forms.TableLayoutPanel
+$listHeader.Dock = 'Fill'
+$listHeader.Margin = New-Object System.Windows.Forms.Padding(0)
+$listHeader.Padding = New-Object System.Windows.Forms.Padding(0)
+$listHeader.ColumnCount = 2
+$listHeader.RowCount = 1
+$listHeader.ColumnStyles.Add((
+    New-Object System.Windows.Forms.ColumnStyle(
+        [System.Windows.Forms.SizeType]::Percent,
+        40
+    )
+))
+$listHeader.ColumnStyles.Add((
+    New-Object System.Windows.Forms.ColumnStyle(
+        [System.Windows.Forms.SizeType]::Percent,
+        60
+    )
+))
+$contentLayout.Controls.Add($listHeader, 0, 1)
 
 $programCountLabel = New-Object System.Windows.Forms.Label
-$programCountLabel.Text = 'Tools'
-$programCountLabel.Location = New-Object System.Drawing.Point(30, 170)
-$programCountLabel.AutoSize = $true
+$programCountLabel.Text = 'AUTOMATION TOOLS'
+$programCountLabel.Dock = 'Fill'
+$programCountLabel.Margin = New-Object System.Windows.Forms.Padding(0)
+$programCountLabel.TextAlign = 'MiddleLeft'
 $programCountLabel.ForeColor = $ColorText
 $programCountLabel.Font = New-Object System.Drawing.Font(
     'Segoe UI Semibold',
-    11,
+    10.5,
     [System.Drawing.FontStyle]::Bold
 )
-$form.Controls.Add($programCountLabel)
+$listHeader.Controls.Add($programCountLabel, 0, 0)
 
 $hintLabel = New-Object System.Windows.Forms.Label
-$hintLabel.Text = 'Click nut tool de mo cua so rieng. Nhan F5 de tai lai danh sach.'
-$hintLabel.Location = New-Object System.Drawing.Point(250, 173)
-$hintLabel.Size = New-Object System.Drawing.Size(468, 22)
+$hintLabel.Text = 'Each workflow opens in its own PowerShell session  |  F5 refreshes this list'
+$hintLabel.Dock = 'Fill'
+$hintLabel.Margin = New-Object System.Windows.Forms.Padding(0)
 $hintLabel.TextAlign = 'MiddleRight'
 $hintLabel.ForeColor = $ColorSubText
-$hintLabel.Font = New-Object System.Drawing.Font('Segoe UI', 8.8)
-$form.Controls.Add($hintLabel)
+$hintLabel.Font = New-Object System.Drawing.Font('Segoe UI', 8.5)
+$listHeader.Controls.Add($hintLabel, 1, 0)
 
-# Panel cuon chua cac nut
-$panel = New-Object System.Windows.Forms.Panel
-$panel.Location = New-Object System.Drawing.Point(28, 202)
-$panel.Size = New-Object System.Drawing.Size(690, 333)
-$panel.AutoScroll = $true
-$panel.BackColor = $ColorPanel
-$form.Controls.Add($panel)
+# Responsive scrolling list
+$programList = New-Object System.Windows.Forms.FlowLayoutPanel
+$programList.Dock = 'Fill'
+$programList.Margin = New-Object System.Windows.Forms.Padding(0)
+$programList.Padding = New-Object System.Windows.Forms.Padding(10)
+$programList.AutoScroll = $true
+$programList.WrapContents = $false
+$programList.FlowDirection = 'TopDown'
+$programList.BackColor = $ColorMuted
+$programList.BorderStyle = 'FixedSingle'
+$programList.TabStop = $false
+$contentLayout.Controls.Add($programList, 0, 2)
+
+$toolTip = New-Object System.Windows.Forms.ToolTip
+$toolTip.AutoPopDelay = 10000
+$toolTip.InitialDelay = 500
+$toolTip.ReshowDelay = 100
+
+# Bottom actions
+$actionsLayout = New-Object System.Windows.Forms.TableLayoutPanel
+$actionsLayout.Dock = 'Fill'
+$actionsLayout.Margin = New-Object System.Windows.Forms.Padding(0)
+$actionsLayout.Padding = New-Object System.Windows.Forms.Padding(0)
+$actionsLayout.ColumnCount = 3
+$actionsLayout.RowCount = 1
+$actionsLayout.ColumnStyles.Add((
+    New-Object System.Windows.Forms.ColumnStyle(
+        [System.Windows.Forms.SizeType]::Absolute,
+        190
+    )
+))
+$actionsLayout.ColumnStyles.Add((
+    New-Object System.Windows.Forms.ColumnStyle(
+        [System.Windows.Forms.SizeType]::Absolute,
+        190
+    )
+))
+$actionsLayout.ColumnStyles.Add((
+    New-Object System.Windows.Forms.ColumnStyle(
+        [System.Windows.Forms.SizeType]::Percent,
+        100
+    )
+))
+$contentLayout.Controls.Add($actionsLayout, 0, 3)
 
 function Update-WorkdayStatus {
     [CmdletBinding()]
@@ -1106,6 +1423,7 @@ function Update-WorkdayStatus {
 
     $status = Get-WorkdayStatus
     $workdayLabel.Text = $status.Text
+    $shiftPercentLabel.Text = '{0}% REMAINING' -f $status.Percent
     $workdayFill.Width = [Math]::Round(
         ($workdayTrack.ClientSize.Width * $status.Percent) / 100
     )
@@ -1121,54 +1439,172 @@ function Update-WorkdayStatus {
     }
 }
 
+function Resize-ProgramRows {
+    [CmdletBinding()]
+    param()
+
+    $rowWidth = [Math]::Max(
+        560,
+        $programList.ClientSize.Width - $programList.Padding.Horizontal - 24
+    )
+
+    foreach ($control in $programList.Controls) {
+        if ($control.Name -eq 'ProgramRow') {
+            $control.Width = $rowWidth
+        }
+    }
+}
+
 function Refresh-ButtonList {
     [CmdletBinding()]
     param()
 
-    $panel.SuspendLayout()
+    $programList.SuspendLayout()
 
     try {
-        $panel.Controls.Clear()
+        while ($programList.Controls.Count -gt 0) {
+            $oldControl = $programList.Controls[0]
+            $programList.Controls.RemoveAt(0)
+            $oldControl.Dispose()
+        }
 
         $programs = @(Load-Programs)
-        $programCountLabel.Text = 'Tools ({0})' -f $programs.Count
-        $y = 10
+        $programCountLabel.Text = 'AUTOMATION TOOLS  /  {0:00} CONFIGURED' -f $programs.Count
 
         if ($programs.Count -eq 0) {
+            $footerStatus.Text = 'LOCAL SYSTEM  /  NO TOOLS CONFIGURED'
+            $footerStatus.ForeColor = $ColorWarning
+
             $emptyLabel = New-Object System.Windows.Forms.Label
             $emptyLabel.Text = (
-                "Chua co chuong trinh nao.`r`n" +
-                "Nhan '+ Them chuong trinh' de bat dau."
+                "NO WORKFLOWS CONFIGURED`r`n" +
+                "Use ADD TOOL to register a PowerShell script."
             )
-            $emptyLabel.Location = New-Object System.Drawing.Point(22, 28)
-            $emptyLabel.AutoSize = $true
+            $emptyLabel.Size = New-Object System.Drawing.Size(520, 58)
+            $emptyLabel.Margin = New-Object System.Windows.Forms.Padding(14, 20, 0, 0)
             $emptyLabel.ForeColor = $ColorSubText
             $emptyLabel.Font = New-Object System.Drawing.Font('Segoe UI', 10)
+            $emptyLabel.AccessibleName = 'No automation tools configured'
 
-            $panel.Controls.Add($emptyLabel)
+            $programList.Controls.Add($emptyLabel)
             return
         }
 
+        $programNumber = 0
+        $availableProgramCount = 0
         foreach ($program in $programs) {
-            # Nut chay chuong trinh
+            $programNumber++
+            $resolvedProgramPath = $null
+            $isAvailable = $false
+
+            try {
+                $resolvedProgramPath = Resolve-ProgramPath -Path ([string]$program.Path)
+                $isAvailable = Test-Path -LiteralPath $resolvedProgramPath -PathType Leaf
+            }
+            catch {
+                $isAvailable = $false
+            }
+
+            if ($isAvailable) {
+                $availableProgramCount++
+                $statusText = 'READY'
+                $statusColor = $ColorGreen
+                $statusSurface = $ColorGreenSurface
+            }
+            else {
+                $statusText = 'MISSING'
+                $statusColor = $ColorWarning
+                $statusSurface = $ColorWarningSurface
+            }
+
+            $programRow = New-Object System.Windows.Forms.Panel
+            $programRow.Name = 'ProgramRow'
+            $programRow.Size = New-Object System.Drawing.Size(820, 66)
+            $programRow.Margin = New-Object System.Windows.Forms.Padding(0, 0, 0, 8)
+            $programRow.BackColor = $ColorCard
+            $programRow.BorderStyle = 'FixedSingle'
+
+            $statusStrip = New-Object System.Windows.Forms.Panel
+            $statusStrip.Dock = 'Left'
+            $statusStrip.Width = 4
+            $statusStrip.BackColor = $statusColor
+            $programRow.Controls.Add($statusStrip)
+
+            $numberLabel = New-Object System.Windows.Forms.Label
+            $numberLabel.Text = '{0:00}' -f $programNumber
+            $numberLabel.Location = New-Object System.Drawing.Point(18, 21)
+            $numberLabel.Size = New-Object System.Drawing.Size(34, 20)
+            $numberLabel.TextAlign = 'MiddleLeft'
+            $numberLabel.ForeColor = $ColorSubText
+            $numberLabel.Font = New-Object System.Drawing.Font(
+                'Consolas',
+                9.5,
+                [System.Drawing.FontStyle]::Bold
+            )
+            $programRow.Controls.Add($numberLabel)
+
+            $nameLabel = New-Object System.Windows.Forms.Label
+            $nameLabel.Text = [string]$program.Name
+            $nameLabel.Location = New-Object System.Drawing.Point(62, 9)
+            $nameLabel.Size = New-Object System.Drawing.Size(460, 24)
+            $nameLabel.Anchor = 'Top, Left, Right'
+            $nameLabel.AutoEllipsis = $true
+            $nameLabel.ForeColor = $ColorText
+            $nameLabel.Font = New-Object System.Drawing.Font(
+                'Segoe UI Semibold',
+                10,
+                [System.Drawing.FontStyle]::Bold
+            )
+            $programRow.Controls.Add($nameLabel)
+
+            $pathLabel = New-Object System.Windows.Forms.Label
+            $pathLabel.Text = [string]$program.Path
+            $pathLabel.Location = New-Object System.Drawing.Point(62, 36)
+            $pathLabel.Size = New-Object System.Drawing.Size(460, 19)
+            $pathLabel.Anchor = 'Top, Left, Right'
+            $pathLabel.AutoEllipsis = $true
+            $pathLabel.ForeColor = $ColorSubText
+            $pathLabel.Font = New-Object System.Drawing.Font('Consolas', 8.2)
+            $toolTip.SetToolTip($pathLabel, [string]$program.Path)
+            $programRow.Controls.Add($pathLabel)
+
+            $statusLabel = New-Object System.Windows.Forms.Label
+            $statusLabel.Text = $statusText
+            $statusLabel.Location = New-Object System.Drawing.Point(526, 20)
+            $statusLabel.Size = New-Object System.Drawing.Size(72, 24)
+            $statusLabel.Anchor = 'Top, Right'
+            $statusLabel.TextAlign = 'MiddleCenter'
+            $statusLabel.BackColor = $statusSurface
+            $statusLabel.ForeColor = $statusColor
+            $statusLabel.Font = New-Object System.Drawing.Font(
+                'Segoe UI Semibold',
+                8,
+                [System.Drawing.FontStyle]::Bold
+            )
+            $statusLabel.AccessibleName = "Tool status: $statusText"
+            $programRow.Controls.Add($statusLabel)
+
             $runButton = New-Object System.Windows.Forms.Button
-            $runButton.Text = '  Run  |  ' + $program.Name
+            $runButton.Text = 'RUN'
             $runButton.Tag = $program
-            $runButton.Size = New-Object System.Drawing.Size(585, 46)
-            $runButton.Location = New-Object System.Drawing.Point(12, $y)
-            $runButton.TextAlign = 'MiddleLeft'
+            $runButton.Size = New-Object System.Drawing.Size(88, 38)
+            $runButton.Location = New-Object System.Drawing.Point(610, 13)
+            $runButton.Anchor = 'Top, Right'
             $runButton.Font = New-Object System.Drawing.Font(
                 'Segoe UI Semibold',
-                10.5,
+                9,
                 [System.Drawing.FontStyle]::Bold
             )
             $runButton.FlatStyle = 'Flat'
-            $runButton.FlatAppearance.BorderSize = 1
-            $runButton.FlatAppearance.BorderColor = [System.Drawing.Color]::FromArgb(65, 65, 75)
-            $runButton.BackColor = $ColorBtn
-            $runButton.ForeColor = $ColorText
+            $runButton.FlatAppearance.BorderSize = 0
+            $runButton.FlatAppearance.MouseOverBackColor = $ColorGreenHover
+            $runButton.FlatAppearance.MouseDownBackColor = $ColorGreenHover
+            $runButton.BackColor = $ColorGreen
+            $runButton.ForeColor = $ColorHeaderText
             $runButton.Cursor = 'Hand'
-            $runButton.FlatAppearance.MouseOverBackColor = $ColorBtnHover
+            $runButton.TabIndex = ($programNumber * 2) - 2
+            $runButton.AccessibleName = "Run $($program.Name)"
+            $runButton.AccessibleDescription = "Open $($program.Name) in a separate PowerShell window."
 
             $runButton.Add_Click({
                 try {
@@ -1182,24 +1618,30 @@ function Refresh-ButtonList {
                 }
             })
 
-            $panel.Controls.Add($runButton)
+            $programRow.Controls.Add($runButton)
 
-            # Nut xoa
             $deleteButton = New-Object System.Windows.Forms.Button
-            $deleteButton.Text = 'X'
+            $deleteButton.Text = 'REMOVE'
             $deleteButton.Tag = $program
-            $deleteButton.Size = New-Object System.Drawing.Size(52, 46)
-            $deleteButton.Location = New-Object System.Drawing.Point(606, $y)
+            $deleteButton.Size = New-Object System.Drawing.Size(96, 38)
+            $deleteButton.Location = New-Object System.Drawing.Point(706, 13)
+            $deleteButton.Anchor = 'Top, Right'
             $deleteButton.Font = New-Object System.Drawing.Font(
-                'Segoe UI',
-                11,
+                'Segoe UI Semibold',
+                8.5,
                 [System.Drawing.FontStyle]::Bold
             )
             $deleteButton.FlatStyle = 'Flat'
-            $deleteButton.FlatAppearance.BorderSize = 0
-            $deleteButton.BackColor = $ColorBtnDel
-            $deleteButton.ForeColor = $ColorText
+            $deleteButton.FlatAppearance.BorderSize = 1
+            $deleteButton.FlatAppearance.BorderColor = $ColorBtnDel
+            $deleteButton.FlatAppearance.MouseOverBackColor = $ColorDangerSurface
+            $deleteButton.FlatAppearance.MouseDownBackColor = $ColorDangerPressed
+            $deleteButton.BackColor = $ColorCard
+            $deleteButton.ForeColor = $ColorBtnDel
             $deleteButton.Cursor = 'Hand'
+            $deleteButton.TabIndex = ($programNumber * 2) - 1
+            $deleteButton.AccessibleName = "Remove $($program.Name)"
+            $deleteButton.AccessibleDescription = "Remove $($program.Name) from launcher-config.json after confirmation."
 
             $deleteButton.Add_Click({
                 $selectedProgram = $this.Tag
@@ -1238,37 +1680,48 @@ function Refresh-ButtonList {
                 }
             })
 
-            $panel.Controls.Add($deleteButton)
-
-            $y += 54
+            $programRow.Controls.Add($deleteButton)
+            $programList.Controls.Add($programRow)
         }
+
+        if ($availableProgramCount -eq $programs.Count) {
+            $footerStatus.Text = 'LOCAL SYSTEM  /  READY FOR OPERATION'
+            $footerStatus.ForeColor = $ColorGreen
+        }
+        else {
+            $missingProgramCount = $programs.Count - $availableProgramCount
+            $footerStatus.Text = 'LOCAL SYSTEM  /  {0:00} TOOL(S) NEED ATTENTION' -f $missingProgramCount
+            $footerStatus.ForeColor = $ColorWarning
+        }
+
+        Resize-ProgramRows
     }
     finally {
-        $panel.ResumeLayout()
+        $programList.ResumeLayout()
     }
 }
 
-# ============================================================
-# NUT THEM CHUONG TRINH
-# ============================================================
+$programList.Add_SizeChanged({ Resize-ProgramRows })
 
 $btnAdd = New-Object System.Windows.Forms.Button
-$btnAdd.Text = '+  Them chuong trinh'
-$btnAdd.Location = New-Object System.Drawing.Point(28, 552)
-$btnAdd.Size = New-Object System.Drawing.Size(335, 48)
+$btnAdd.Text = 'ADD TOOL'
+$btnAdd.Dock = 'Fill'
+$btnAdd.Margin = New-Object System.Windows.Forms.Padding(0, 10, 10, 4)
 $btnAdd.Font = New-Object System.Drawing.Font(
     'Segoe UI Semibold',
-    10,
+    9,
     [System.Drawing.FontStyle]::Bold
 )
 $btnAdd.FlatStyle = 'Flat'
 $btnAdd.FlatAppearance.BorderSize = 0
 $btnAdd.BackColor = $ColorGreen
-$btnAdd.ForeColor = $ColorText
+$btnAdd.ForeColor = $ColorHeaderText
 $btnAdd.Cursor = 'Hand'
-$btnAdd.FlatAppearance.MouseOverBackColor = (
-    [System.Drawing.Color]::FromArgb(60, 150, 105)
-)
+$btnAdd.FlatAppearance.MouseOverBackColor = $ColorGreenHover
+$btnAdd.FlatAppearance.MouseDownBackColor = $ColorGreenHover
+$btnAdd.TabIndex = 100
+$btnAdd.AccessibleName = 'Add PowerShell tool'
+$btnAdd.AccessibleDescription = 'Select a PowerShell script and add it to launcher-config.json.'
 
 $btnAdd.Add_Click({
     $dialog = New-Object System.Windows.Forms.OpenFileDialog
@@ -1359,23 +1812,28 @@ $btnAdd.Add_Click({
     }
 })
 
-$form.Controls.Add($btnAdd)
-
-# ============================================================
-# NUT SUA FILE CAU HINH
-# ============================================================
+$actionsLayout.Controls.Add($btnAdd, 0, 0)
 
 $btnEdit = New-Object System.Windows.Forms.Button
-$btnEdit.Text = 'Sua file cau hinh'
-$btnEdit.Location = New-Object System.Drawing.Point(383, 552)
-$btnEdit.Size = New-Object System.Drawing.Size(335, 48)
-$btnEdit.Font = New-Object System.Drawing.Font('Segoe UI', 10)
+$btnEdit.Text = 'OPEN CONFIG'
+$btnEdit.Dock = 'Fill'
+$btnEdit.Margin = New-Object System.Windows.Forms.Padding(0, 10, 10, 4)
+$btnEdit.Font = New-Object System.Drawing.Font(
+    'Segoe UI Semibold',
+    9,
+    [System.Drawing.FontStyle]::Bold
+)
 $btnEdit.FlatStyle = 'Flat'
 $btnEdit.FlatAppearance.BorderSize = 1
-$btnEdit.FlatAppearance.BorderColor = $ColorAccent
+$btnEdit.FlatAppearance.BorderColor = $ColorBtn
+$btnEdit.FlatAppearance.MouseOverBackColor = $ColorMuted
+$btnEdit.FlatAppearance.MouseDownBackColor = $ColorBorder
 $btnEdit.BackColor = $ColorPanel
 $btnEdit.ForeColor = $ColorText
 $btnEdit.Cursor = 'Hand'
+$btnEdit.TabIndex = 101
+$btnEdit.AccessibleName = 'Open launcher configuration'
+$btnEdit.AccessibleDescription = 'Open launcher-config.json in Notepad.'
 
 $btnEdit.Add_Click({
     try {
@@ -1392,18 +1850,73 @@ $btnEdit.Add_Click({
     }
 })
 
-$form.Controls.Add($btnEdit)
+$actionsLayout.Controls.Add($btnEdit, 1, 0)
+
+$actionsHint = New-Object System.Windows.Forms.Label
+$actionsHint.Text = 'Configuration changes are loaded with F5'
+$actionsHint.Dock = 'Fill'
+$actionsHint.Margin = New-Object System.Windows.Forms.Padding(0, 10, 0, 4)
+$actionsHint.TextAlign = 'MiddleRight'
+$actionsHint.ForeColor = $ColorSubText
+$actionsHint.Font = New-Object System.Drawing.Font('Segoe UI', 8.5)
+$actionsLayout.Controls.Add($actionsHint, 2, 0)
+
+# Footer
+$footerPanel = New-Object System.Windows.Forms.Panel
+$footerPanel.Dock = 'Fill'
+$footerPanel.Margin = New-Object System.Windows.Forms.Padding(0)
+$footerPanel.BackColor = $ColorMuted
+$rootLayout.Controls.Add($footerPanel, 0, 2)
+
+$footerLine = New-Object System.Windows.Forms.Panel
+$footerLine.Dock = 'Top'
+$footerLine.Height = 1
+$footerLine.BackColor = $ColorBorder
+$footerPanel.Controls.Add($footerLine)
+
+$footerLayout = New-Object System.Windows.Forms.TableLayoutPanel
+$footerLayout.Dock = 'Fill'
+$footerLayout.Margin = New-Object System.Windows.Forms.Padding(0)
+$footerLayout.Padding = New-Object System.Windows.Forms.Padding(26, 4, 26, 3)
+$footerLayout.ColumnCount = 2
+$footerLayout.RowCount = 1
+$footerLayout.ColumnStyles.Add((
+    New-Object System.Windows.Forms.ColumnStyle(
+        [System.Windows.Forms.SizeType]::Percent,
+        34
+    )
+))
+$footerLayout.ColumnStyles.Add((
+    New-Object System.Windows.Forms.ColumnStyle(
+        [System.Windows.Forms.SizeType]::Percent,
+        66
+    )
+))
+$footerPanel.Controls.Add($footerLayout)
+
+$footerStatus = New-Object System.Windows.Forms.Label
+$footerStatus.Text = 'LOCAL SYSTEM  /  READY FOR OPERATION'
+$footerStatus.Dock = 'Fill'
+$footerStatus.Margin = New-Object System.Windows.Forms.Padding(0)
+$footerStatus.TextAlign = 'MiddleLeft'
+$footerStatus.ForeColor = $ColorGreen
+$footerStatus.Font = New-Object System.Drawing.Font(
+    'Segoe UI Semibold',
+    7.8,
+    [System.Drawing.FontStyle]::Bold
+)
+$footerLayout.Controls.Add($footerStatus, 0, 0)
 
 $footerLabel = New-Object System.Windows.Forms.Label
-$footerLabel.Text = 'Version {0} | Developed by Hugo Le Chi Quoc Hung' -f $AppVersion
-$footerLabel.Location = New-Object System.Drawing.Point(28, 603)
-$footerLabel.Size = New-Object System.Drawing.Size(690, 16)
+$footerLabel.Text = 'Version {0} | Developed by Hugo Le Chi Quoc Hung | Phone: +84 39 5656 909' -f $AppVersion
+$footerLabel.Dock = 'Fill'
+$footerLabel.Margin = New-Object System.Windows.Forms.Padding(0)
 $footerLabel.TextAlign = 'MiddleRight'
 $footerLabel.ForeColor = $ColorSubText
-$footerLabel.Font = New-Object System.Drawing.Font('Segoe UI', 8)
+$footerLabel.Font = New-Object System.Drawing.Font('Segoe UI', 7.8)
 $footerLabel.TabStop = $false
 $footerLabel.AccessibleName = 'Application version and developer'
-$form.Controls.Add($footerLabel)
+$footerLayout.Controls.Add($footerLabel, 1, 0)
 
 $clockTimer = New-Object System.Windows.Forms.Timer
 $clockTimer.Interval = 1000
@@ -1412,10 +1925,6 @@ $clockTimer.Add_Tick({
     Update-WorkdayStatus
 })
 $clockTimer.Start()
-
-# Khi nguoi dung quay lai Launcher sau khi sua JSON bang Notepad,
-# co the nhan F5 de tai lai danh sach.
-$form.KeyPreview = $true
 
 $form.Add_KeyDown({
     if ($_.KeyCode -eq [System.Windows.Forms.Keys]::F5) {
@@ -1426,6 +1935,7 @@ $form.Add_KeyDown({
 $form.Add_FormClosed({
     $clockTimer.Stop()
     $clockTimer.Dispose()
+    $toolTip.Dispose()
     Write-LauncherLog -Message 'Launcher da dong.'
 })
 
