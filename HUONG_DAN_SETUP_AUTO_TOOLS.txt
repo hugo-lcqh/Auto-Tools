@@ -224,7 +224,9 @@ Logic hoat dong:
    - Export_Daily
 
 8. Luu va dong file Excel.
-9. Hoi nguoi dung co muon chay CheckCD_Shortage.ps1 tiep hay khong.
+9. Sau khi update thanh cong, chuyen folder ngay nguon vao
+   Input\Job Short\Older.
+10. Hoi nguoi dung co muon chay CheckCD_Shortage.ps1 tiep hay khong.
 
 Output:
 
@@ -312,7 +314,7 @@ Duong dan script:
 Input can chuan bi:
 
 - Outlook da dang nhap mailbox dung.
-- Trong Outlook can co cac folder:
+- Script uu tien cac folder:
 
   Inbox\Supplier Commitment\TC5 - Cu Chi\SF (Forecast chuan)
   Inbox\Supplier Commitment\TN5 - Dau Giay\SF (Forecast chuan)
@@ -323,37 +325,48 @@ Trong code hien tai, ten folder co dau tieng Viet:
   TN5 - Dau Giay
   SF (Forecast chuan)
 
-Neu ten folder Outlook tren may khac khac nhau, can sua bien $Folders trong:
+Neu duong dan BU bi doi ten hoac di chuyen, script se quet toan bo cay
+Inbox\Supplier Commitment va nhan dien BU/supplier theo tieu de ISPIH.
+Chi can sua bien $Folders neu cau truc mailbox khac hoan toan:
 
   Scripts\Download-SupplierCommitment.ps1
 
 Output:
 
-  Input\Supplier Commitment\TC5
-  Input\Supplier Commitment\TN5
+  Output\Supplier Commitment\<tuan>\TC5
+  Output\Supplier Commitment\<tuan>\TN5
 
 Logic hoat dong:
 
 1. Ket noi Outlook.
 2. Tinh ngay Thu 2 cua tuan hien tai.
 3. Duyet email tu Thu 2 den ngay hien tai.
-4. Trong tung email, doc Category co dang:
+4. Uu tien doc BU va ma supplier tu tieu de dang:
+
+   TTI ISPIH Alert -- MRP Supplier Commitment(SF_<BU>--...)(<ma vendor>)
+
+   Sau do tra ten supplier trong Config\suppliers.csv.
+
+5. Voi email cu, doc Category co dang:
 
    Vendor_<ma vendor> - <ten supplier>
 
-5. Tim attachment .xls hoac .xlsx.
-6. Doi ten file theo format:
+6. Tim attachment .xls hoac .xlsx.
+7. Doi ten file theo format:
 
    <ma vendor> - <ten supplier> - <BU>.xls
 
-7. Luu vao folder TC5 hoac TN5 tuong ung.
-8. Neu trung ten file, file moi se ghi de file cu.
+8. Luu vao folder TC5 hoac TN5 tuong ung.
+9. Neu trung ten file, file moi se ghi de file cu.
+10. Xuat report supplier/BU chua co data.
+11. Cho phep chon supplier va tao Outlook reminder draft tu Email To/CC trong
+    Config\suppliers.csv. Script khong tu dong gui email.
 
 Luu y:
 
 - May chay can cai Microsoft Outlook.
 - Outlook nen duoc mo san truoc khi chay.
-- Email phai co category Vendor dung format.
+- Can kiem tra lai reminder draft truoc khi bam Send.
 
 
 8. Check-Shortage-Supplier Commitment.ps1
@@ -495,7 +508,13 @@ MOQ neu can release PO theo full carton/MOQ:
 
 Output:
 
+- Che do theo supplier:
+
   Output\Process-PO\<BU>\<vendor name>\<vendor_site>.txt
+
+- Che do theo site:
+
+  Output\Process-PO\<BU>\<BU>.txt
 
 Logic hoat dong:
 
@@ -505,16 +524,17 @@ Logic hoat dong:
 
    yyyy/MM/dd
 
-4. Nhom du lieu theo BU va VENDOR_SITE.
-5. Tra ten vendor tu vendor id trong VENDOR_SITE.
-6. Neu nguoi dung bat MOQ, lam tron NEW ORDER QUANTITY len boi so MOQ cho
+4. Hoi nguoi dung chon nhom theo supplier + site hoac chi theo site TC5/TN5.
+5. Nhom du lieu theo lua chon.
+6. Tra ten vendor tu vendor id trong VENDOR_SITE khi dung che do supplier.
+7. Neu nguoi dung bat MOQ, lam tron NEW ORDER QUANTITY len boi so MOQ cho
    supplier da chon.
-7. Mo file PO_Template_5.xlsx bang Excel.
-8. Dan du lieu vao sheet:
+8. Mo file PO_Template_5.xlsx bang Excel.
+9. Dan du lieu vao sheet:
 
    Upload PO_NoSER
 
-9. Luu tung nhom thanh file Text (Tab delimited) .txt.
+10. Luu tung nhom thanh file Text (Tab delimited) .txt.
 
 Luu y:
 
@@ -602,7 +622,8 @@ Loi: Khong tim thay file template/input
 13. Cach share cho nguoi khac
 -----------------------------
 
-Khi share cho may khac, nen gui nguyen folder:
+Uu tien tai bo cai phu hop tu GitHub Releases. Neu share thu cong, nen gui
+nguyen folder:
 
   Auto Tools
 
@@ -622,7 +643,7 @@ Nguoi nhan can:
 - Neu doi cau truc folder, uu tien sua Config\autotools-paths.json.
 - Neu them chuong trinh moi, them vao launcher-config.json hoac dung nut
   "Them chuong trinh" trong Launcher.
-- Neu them vendor moi cho CDs/PO/Shortage, can sua bang vendor trong script
-  tuong ung. Rieng Process-CDs dung Config\suppliers.csv.
+- Neu them vendor moi, uu tien cap nhat Config\suppliers.csv va khong dua file
+  nay ra khoi repo private khi con chua email that.
 - Nen giu template trong Scripts\Process-CDs va Scripts\Process-PO de khi copy
   folder sang may khac template di kem chuong trinh.
