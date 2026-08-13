@@ -10,6 +10,10 @@ Temp/
 # Runtime output
 Logs/
 Output/
+Scripts/Process-CDs/Output/
+Scripts/Process-CDs/Older CDs/
+Scripts/Process-PO/Output/
+Scripts/Process-PO/Older Output PO/
 
 # Runtime input: retain only the starter files required by the installer
 Input/*
@@ -23,3 +27,13 @@ Input/Process-PO/*
 # Windows-generated files
 Thumbs.db
 Desktop.ini
+~$*
+*.tmp
+*.bak
+
+# Credentials and private keys
+.env
+.env.*
+!.env.example
+*.pem
+*.key

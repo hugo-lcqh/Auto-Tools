@@ -1,0 +1,64 @@
+name: PowerShell CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: windows-latest
+    timeout-minutes: 10
+
+    steps:
+      # Current usage and least-privilege guidance:
+      # https://github.com/actions/checkout#usage
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Parse PowerShell scripts
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $failures = @()
+
+          foreach ($file in Get-ChildItem -Path . -Filter '*.ps1' -File -Recurse) {
+              $tokens = $null
+              $parseErrors = $null
+              [void][System.Management.Automation.Language.Parser]::ParseFile(
+                  $file.FullName,
+                  [ref]$tokens,
+                  [ref]$parseErrors
+              )
+
+              foreach ($parseError in @($parseErrors)) {
+                  $failures += "${file}: $parseError"
+              }
+          }
+
+          if ($failures.Count -gt 0) {
+              $failures | ForEach-Object { Write-Error $_ }
+              exit 1
+          }
+
+      - name: Run tests
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          foreach ($test in Get-ChildItem '.\Tests\Test-*.ps1' | Sort-Object Name) {
+              Write-Host "Running $($test.Name)"
+              & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $test.FullName
+              if ($LASTEXITCODE -ne 0) {
+                  throw "Test failed: $($test.Name)"
+              }
+          }
